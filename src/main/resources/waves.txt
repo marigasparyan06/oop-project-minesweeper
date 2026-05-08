@@ -1,5 +1,0 @@
-# Wave definitions for Wild Habitat Defense
-# Format per creature line: TYPE,row,col,TILETYPE
-# WAVE,N marks the start of each wave
-
-

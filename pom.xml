@@ -31,7 +31,11 @@
 
     <build>
         <plugins>
+<<<<<<< Updated upstream
             
+=======
+            <!-- Explicit Java 17 compiler config for pattern matching, switch expressions -->
+>>>>>>> Stashed changes
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
@@ -41,7 +45,11 @@
                 </configuration>
             </plugin>
 
+<<<<<<< Updated upstream
             
+=======
+            <!-- Run UI: mvn javafx:run -->
+>>>>>>> Stashed changes
             <plugin>
                 <groupId>org.openjfx</groupId>
                 <artifactId>javafx-maven-plugin</artifactId>
@@ -51,7 +59,11 @@
                 </configuration>
             </plugin>
 
+<<<<<<< Updated upstream
             
+=======
+            <!-- Run CLI: mvn exec:java -Dexec.args="cli" -->
+>>>>>>> Stashed changes
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>exec-maven-plugin</artifactId>
@@ -62,7 +74,11 @@
                 </configuration>
             </plugin>
 
+<<<<<<< Updated upstream
             
+=======
+            <!-- Fat jar: mvn clean package -->
+>>>>>>> Stashed changes
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-assembly-plugin</artifactId>

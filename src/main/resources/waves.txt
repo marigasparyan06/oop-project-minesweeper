@@ -2,4 +2,27 @@
 # Format per creature line: TYPE,row,col,TILETYPE
 # WAVE,N marks the start of each wave
 
+<<<<<<< Updated upstream
 
+=======
+WAVE,1
+RABBIT,4,10,GRASS
+
+WAVE,2
+RABBIT,3,10,GRASS
+WOLF,2,10,GRASS
+
+WAVE,3
+WOLF,3,10,GRASS
+ALPHAWOLF,1,10,GRASS
+
+WAVE,4
+BEAR,2,10,GRASS
+FROG,3,10,GRASS
+
+WAVE,5
+CROCODILE,2,10,SHALLOW_WATER
+WOLF,2,10,GRASS
+ALPHAWOLF,1,10,GRASS
+BEAR,1,10,GRASS
+>>>>>>> Stashed changes

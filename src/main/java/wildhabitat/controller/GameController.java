@@ -163,4 +163,69 @@ public class GameController {
 
         }
     }
+
+    public void triggerNextWave() {
+        List<Creature> wave = WaveManager.buildWave(state.wave);
+        for (Creature c : wave) {
+            int attempts = 0;
+            while (state.getCreatureAt(c.row, c.col) != null && attempts < GameState.ROWS) {
+                c.row = (c.row + 1) % GameState.ROWS;
+                attempts++;
+            }
+            state.creatures.add(c);
+        }
+        state.log("[WAVE] Wave " + state.wave + " incoming! (" + wave.size() + " creatures)");
+        state.wave++;
+        waveCooldown = 0;
+    }
+
+    private void moveAttackers() {
+        List<Creature> attackers = state.livingAttackers();
+        for (Creature a : attackers) {
+            if (!a.isAlive())
+                continue;
+            Terrain t = state.terrain[a.row][a.col];
+            int cells = a.computeMoveCells(state.timeOfDay, t);
+            if (cells == 0)
+                continue;
+
+            for (int step = 0; step < cells; step++) {
+                int nextCol = a.col + 1;
+                if (nextCol >= GameState.COLS) {
+                    state.log("[DEFEAT] " + a.type.displayName + " breached the habitat! Game over.");
+                    a.health = 0;
+                    gameOver = true;
+                    playerWon = false;
+                    return;
+                }
+                a.col = nextCol;
+                movedCells.add(new int[] { a.row, a.col });
+                
+            }
+        }
+    }
+
+    private void attackersAttack() {
+        for (Creature attacker : state.livingAttackers()) {
+            Creature target = null;
+            for (int dc = 0; dc <= 1; dc++) {
+                int checkCol = attacker.col + dc;
+                if (!state.inBounds(attacker.row, checkCol))
+                    continue;
+                Creature c = state.getCreatureAt(attacker.row, checkCol);
+                if (c != null && c.isDefender()) {
+                    target = c;
+                    break;
+                }
+            }
+            if (target == null)
+                continue;
+
+            int power = attacker.getAttackerPower(state.timeOfDay);
+            target.takeDamage(power);
+            attackedCells.add(new int[] { target.row, target.col });
+            state.log("[ATTACK] " + attacker.type.abbrev + " → " + target.type.abbrev
+                    + " for " + power + " dmg (hp left: " + target.health + ")");
+        }
+    }
 }

@@ -1,132 +1,114 @@
-package wildhabitat.creatures;
-
-import wildhabitat.board.Board;
-import wildhabitat.enums.TileType;
-import wildhabitat.exceptions.CreatureDeadException;
-
-public abstract class Creature {
-
-    protected int x;           // row
-    protected int y;           // col
-    protected int energy;
-    protected int visionRange;
-    protected CreatureStats stats;
-    protected Board board;     // set by Board.placeCreature()
-
-    // Stun state shared by both Defenders (Bear roar) and Attackers
-    protected boolean stunned = false;
-    protected int stunTurnsLeft = 0;
-
-    public Creature(int x, int y, int energy, int visionRange) {
-        this.x = x;
-        this.y = y;
-
-        this.energy = energy;
-        this.visionRange = visionRange;
+public class Creature {
+    public enum Type {
+       
+        Wolf, Rabbit, Boar, NightStalker, SwampCrawler,
         
-        this.stats = new CreatureStats(energy);
+        Thornbush, NightOwl, BatDefender, StoneGuard, ReedWarden
     }
 
-    public abstract void move();
-    public abstract void eat();
-    public abstract boolean canEnter(TileType tile);
-    public abstract String getAbbreviation();
+    public enum Role { ATTACKER, DEFENDER }
 
-    public void born() {
-        System.out.println(getClass().getSimpleName() + " spawned at (" + x + "," + y + ")");
+    private static final String[] ABBREV = {
+        "Wf", "Rb", "Bo", "NS", "SC",   
+        "Tb", "NO", "Bt", "SG", "RW"    
+    };
+
+    private static final int[] BASE_HP = {
+        60, 30, 90, 50, 45,   
+        40, 35, 30, 80, 45    
+    };
+
+    private static final int[] BASE_ATTACK = {
+        15, 8, 20, 18, 12,    
+        10, 14, 12, 8, 11     
+    };
+
+    private static final int[] BASE_COST = {
+        0, 0, 0, 0, 0,        
+        20, 25, 20, 30, 15    
+    };
+
+    private Type type;
+    private int row, col;
+    private int hp;
+    private int maxHp;
+    private boolean alive;
+
+    public Creature(Type type, int row, int col) {
+        this.type = type;
+        this.row = row;
+        this.col = col;
+        this.maxHp = BASE_HP[type.ordinal()];
+        this.hp = this.maxHp;
+        this.alive = true;
     }
 
-    public void die() {
-        energy = 0;
 
-        System.out.println(getClass().getSimpleName() + " at (" + x + "," + y + ") died. Kills: " + stats.killCount);
+    public Creature(Type type, int row, int col, int hp) {
+        this(type, row, col);
+        this.hp = Math.min(hp, this.maxHp);
     }
 
-    protected void checkAlive() {
-        if (energy <= 0) {
-            throw new CreatureDeadException(getClass().getSimpleName());
-        } 
+    public Type getType() { return type; }
+    public int getRow() { return row; }
+    public int getCol() { return col; }
+    public void setRow(int r) { row = r; }
+    public void setCol(int c) { col = c; }
+    public int getHp() { return hp; }
+    public int getMaxHp() { return maxHp; }
+    public boolean isAlive() { return alive; }
+
+    public Role getRole() {
+        return type.ordinal() < 5 ? Role.ATTACKER : Role.DEFENDER;
     }
 
-    public void takeDamage(int amount) {
-        energy -= amount;
+    public int getBaseAttack() { return BASE_ATTACK[type.ordinal()]; }
 
-        if (energy < 0) {
-            energy = 0;
-        } 
+    public int getPlacementCost() { return BASE_COST[type.ordinal()]; }
+
+    public String getAbbrev() { return ABBREV[type.ordinal()]; }
+
+    
+    public boolean takeDamage(int amount) {
+        hp = Math.max(0, hp - amount);
+        if (hp == 0) alive = false;
+        return !alive;
     }
 
-    public boolean isAlive() {
-        return energy > 0;
-    }
-
-    public void stun(int turns) {
-        stunned = true;
-        stunTurnsLeft = turns;
-    }
-
-    public boolean isStunned() {
-        return stunned;
-    }
-
-    public void decrementStun() {
-        if (stunned) {
-            stunTurnsLeft--;
-
-            if (stunTurnsLeft <= 0) {
-                stunned = false;
-                stunTurnsLeft = 0;
+    
+    public int getEffectiveAttack(DayNightCycle.Phase phase) {
+        double mult = 1.0;
+        if (getRole() == Role.ATTACKER) {
+            if (phase == DayNightCycle.Phase.NIGHT) mult = 1.15;
+            else if (phase == DayNightCycle.Phase.DUSK) mult = 1.10;
+        } else {
+            if (phase == DayNightCycle.Phase.DAWN) mult = 1.10;
+            else if (phase == DayNightCycle.Phase.NIGHT) {
+              
+                if (type != Type.NightOwl && type != Type.BatDefender)
+                    mult = 0.90;
             }
         }
+        if (type == Type.NightStalker && phase == DayNightCycle.Phase.DAY)
+            return 0;
+        return (int)(getBaseAttack() * mult);
     }
 
-    public void setBoard(Board board) { 
-        this.board = board; 
-    }
-    public Board getBoard() { 
-        return board; 
-    }
-
-    public int getX() { 
-        return x; 
-    }
-
-    public int getY() { 
-        return y; 
-    }
-
-    public void setX(int x) { 
-        this.x = x; 
-    }
-
-    public void setY(int y) { 
-        this.y = y; 
-    }
-
-    public int getEnergy() { 
-        return energy; 
-    }
-
-    public void setEnergy(int e) { 
-        this.energy = Math.max(0, e); 
-    }
-
-    public int getVisionRange() { 
-        return visionRange; 
-    }
-    public CreatureStats getStats() { 
-        return stats; 
-    }
-
-    public static class CreatureStats {
-        public int maxEnergy;
-        public int killCount;
-        public int turnsAlive;
-
-        public CreatureStats(int maxEnergy) {
-            this.maxEnergy = maxEnergy;
-            this.killCount = 0;
-            this.turnsAlive = 0;
+    
+    public double getSpeedMultiplier(DayNightCycle.Phase phase) {
+        double mult = 1.0;
+        if (getRole() == Role.ATTACKER) {
+            if (phase == DayNightCycle.Phase.DAWN) mult = 0.75;
+            else if (phase == DayNightCycle.Phase.DUSK) mult = 1.10;
+            else if (phase == DayNightCycle.Phase.NIGHT) mult = 1.25;
         }
+        if (type == Type.Rabbit && phase == DayNightCycle.Phase.DAWN) mult *= 0.8;
+        if (type == Type.NightStalker && phase == DayNightCycle.Phase.DAY) return 0;
+        return mult;
+    }
+
+    @Override
+    public String toString() {
+        return type.name() + "@(" + row + "," + col + ") hp=" + hp;
     }
 }

@@ -4,7 +4,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>wildhabitat</groupId>
+    <groupId>com.wildhabitat</groupId>
     <artifactId>wildhabitat</artifactId>
     <version>1.0-SNAPSHOT</version>
     <packaging>jar</packaging>
@@ -13,7 +13,14 @@
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <javafx.version>21.0.1</javafx.version>
+        <javafx.version>21.0.2</javafx.version>
+        <!--
+            Path to the JavaFX jmods directory — required only for the "native" profile.
+            Download jmods from https://gluonhq.com/products/javafx/ (pick "jmods" variant).
+            Override via: mvn install -Pnative -Djavafx.jmods=/path/to/javafx-jmods
+            Or set the JAVAFX_JMODS environment variable and omit -D.
+        -->
+        <javafx.jmods>${env.JAVAFX_JMODS}</javafx.jmods>
     </properties>
 
     <dependencies>
@@ -24,87 +31,136 @@
         </dependency>
         <dependency>
             <groupId>org.openjfx</groupId>
-            <artifactId>javafx-fxml</artifactId>
+            <artifactId>javafx-graphics</artifactId>
+            <version>${javafx.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.openjfx</groupId>
+            <artifactId>javafx-base</artifactId>
             <version>${javafx.version}</version>
         </dependency>
     </dependencies>
 
     <build>
         <plugins>
-<<<<<<< Updated upstream
-            
-=======
-            <!-- Explicit Java 17 compiler config for pattern matching, switch expressions -->
->>>>>>> Stashed changes
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.11.0</version>
-                <configuration>
-                    <release>17</release>
-                </configuration>
-            </plugin>
-
-<<<<<<< Updated upstream
-            
-=======
-            <!-- Run UI: mvn javafx:run -->
->>>>>>> Stashed changes
+            <!-- UI mode: mvn clean javafx:run -->
             <plugin>
                 <groupId>org.openjfx</groupId>
                 <artifactId>javafx-maven-plugin</artifactId>
                 <version>0.0.8</version>
                 <configuration>
-                    <mainClass>wildhabitat.Main</mainClass>
+                    <mainClass>com.wildhabitat.ui.GameUI</mainClass>
                 </configuration>
             </plugin>
 
-<<<<<<< Updated upstream
-            
-=======
-            <!-- Run CLI: mvn exec:java -Dexec.args="cli" -->
->>>>>>> Stashed changes
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>exec-maven-plugin</artifactId>
-                <version>3.1.0</version>
-                <configuration>
-                    <mainClass>wildhabitat.Main</mainClass>
-                    <commandlineArgs>${exec.args}</commandlineArgs>
-                </configuration>
-            </plugin>
-
-<<<<<<< Updated upstream
-            
-=======
-            <!-- Fat jar: mvn clean package -->
->>>>>>> Stashed changes
+            <!-- CLI jar: mvn clean package && java -jar target/wildhabitat.jar cli -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-assembly-plugin</artifactId>
-                <version>3.6.0</version>
-                <configuration>
-                    <archive>
-                        <manifest>
-                            <mainClass>wildhabitat.Main</mainClass>
-                        </manifest>
-                    </archive>
-                    <descriptorRefs>
-                        <descriptorRef>jar-with-dependencies</descriptorRef>
-                    </descriptorRefs>
-                    <finalName>wildhabitat</finalName>
-                    <appendAssemblyId>false</appendAssemblyId>
-                </configuration>
+                <artifactId>maven-shade-plugin</artifactId>
+                <version>3.5.1</version>
                 <executions>
                     <execution>
-                        <id>make-assembly</id>
                         <phase>package</phase>
-                        <goals>
-                            <goal>single</goal>
-                        </goals>
+                        <goals><goal>shade</goal></goals>
+                        <configuration>
+                            <finalName>wildhabitat</finalName>
+                            <transformers>
+                                <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                                    <mainClass>com.wildhabitat.Main</mainClass>
+                                </transformer>
+                            </transformers>
+                            <!-- Exclude JavaFX from CLI jar — CLI never initialises JavaFX,
+                                 so classes load lazily and nothing breaks. -->
+                            <artifactSet>
+                                <excludes>
+                                    <exclude>org.openjfx:*</exclude>
+                                </excludes>
+                            </artifactSet>
+                            <filters>
+                                <filter>
+                                    <artifact>*:*</artifact>
+                                    <excludes>
+                                        <exclude>META-INF/*.SF</exclude>
+                                        <exclude>META-INF/*.DSA</exclude>
+                                        <exclude>META-INF/*.RSA</exclude>
+                                        <exclude>module-info.class</exclude>
+                                    </excludes>
+                                </filter>
+                            </filters>
+                        </configuration>
                     </execution>
                 </executions>
             </plugin>
         </plugins>
     </build>
+
+    <profiles>
+        <!--
+            Native installer profile.
+            Usage:
+              mvn package -Pnative -Djavafx.jmods=/path/to/javafx-jmods
+            Or set JAVAFX_JMODS env var first, then:
+              mvn package -Pnative
+
+            Output: target/installer/WildHabitat.exe  (Windows)
+                    target/installer/WildHabitat.dmg  (macOS)
+                    target/installer/wildhabitat.deb  (Linux)
+
+            The installer bundles the JRE + JavaFX — the end user needs
+            nothing installed on their machine.
+
+            Prerequisite: download the JavaFX jmods (not the SDK) from
+            https://gluonhq.com/products/javafx/ and point javafx.jmods at
+            the extracted jmods/ folder.
+        -->
+        <profile>
+            <id>native</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>exec-maven-plugin</artifactId>
+                        <version>3.1.0</version>
+                        <executions>
+                            <execution>
+                                <id>jpackage</id>
+                                <phase>install</phase>
+                                <goals><goal>exec</goal></goals>
+                                <configuration>
+                                    <executable>jpackage</executable>
+                                    <arguments>
+                                        <!-- App JAR built by the shade plugin -->
+                                        <argument>--input</argument>
+                                        <argument>${project.build.directory}</argument>
+                                        <argument>--main-jar</argument>
+                                        <argument>wildhabitat.jar</argument>
+                                        <argument>--main-class</argument>
+                                        <argument>com.wildhabitat.Main</argument>
+                                        <!-- JavaFX jmods to bundle into the runtime image -->
+                                        <argument>--module-path</argument>
+                                        <argument>${javafx.jmods}</argument>
+                                        <argument>--add-modules</argument>
+                                        <argument>javafx.controls,javafx.graphics,javafx.base</argument>
+                                        <!-- App metadata -->
+                                        <argument>--name</argument>
+                                        <argument>WildHabitat</argument>
+                                        <argument>--app-version</argument>
+                                        <argument>1.0</argument>
+                                        <argument>--description</argument>
+                                        <argument>WildHabitat wave-defence game</argument>
+                                        <argument>--vendor</argument>
+                                        <argument>WildHabitat</argument>
+                                        <!-- Output directory -->
+                                        <argument>--dest</argument>
+                                        <argument>${project.build.directory}/installer</argument>
+                                    </arguments>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
+
 </project>

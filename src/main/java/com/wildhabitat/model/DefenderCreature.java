@@ -13,8 +13,8 @@ public class DefenderCreature extends Creature {
     /**
      * Returns defender power scaled by phase and specialization:
      * DAWN gives +10% to all defenders.
-     * NIGHT gives -10% to standard defenders, but +25% to NightOwl and BatDefender.
-     * NightOwl operates at 40% power during DAY; BatDefender at 15%.
+     * NIGHT gives -10% to standard defenders, but +25% to Defender2 and Defender3.
+     * Defender2 operates at 40% power during DAY; Defender3 at 15%.
      */
     @Override
     public int getEffectivePower(TimeOfDay phase) {
@@ -23,10 +23,10 @@ public class DefenderCreature extends Creature {
         if (phase == TimeOfDay.NIGHT && type.isNightSpecialist()) {
             mult = 1.25;
         }
-        if (phase == TimeOfDay.DAY && type == CreatureType.NIGHTOWL) {
+        if (phase == TimeOfDay.DAY && type == CreatureType.DEFENDER2) {
             mult = 0.4;
         }
-        if (phase == TimeOfDay.DAY && type == CreatureType.BATDEFENDER) {
+        if (phase == TimeOfDay.DAY && type == CreatureType.DEFENDER3) {
             mult = 0.15;
         }
 

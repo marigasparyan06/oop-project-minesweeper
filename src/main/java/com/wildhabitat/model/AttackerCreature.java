@@ -19,10 +19,10 @@ public class AttackerCreature extends Creature {
         return (int) Math.round(type.basePower * mult);
     }
 
-    /** NightStalker is frozen during DAY; all other attackers can always act. */
+    /** Attacker4 is frozen during DAY; all other attackers can always act. */
     @Override
     public boolean canActDuringPhase(TimeOfDay phase) {
-        return !(type == CreatureType.NIGHTSTALKER && phase == TimeOfDay.DAY);
+        return !(type == CreatureType.ATTACKER4 && phase == TimeOfDay.DAY);
     }
 
     /**
@@ -33,7 +33,7 @@ public class AttackerCreature extends Creature {
     public int computeMoveCells(TimeOfDay phase, Terrain terrain) {
         float fraction = type.baseMoveFraction * (float) phase.attackerSpeedMult();
 
-        if (type == CreatureType.SWAMPCRAWLER && terrain.isWater()) {
+        if (type == CreatureType.ATTACKER5 && terrain.isWater()) {
             fraction *= 1.3f;
         }
 

@@ -27,12 +27,12 @@ import java.util.List;
 
 /**
  * Builds and drives the full JavaFX UI. All layout is in Java code — no FXML.
- * Grid: 7 rows x 11 cols, each cell 70x70 px.
+ * Grid: 7 rows x 11 cols, each cell 60x60 px.
  * Attackers spawn at col 0 (left) and march right toward col 10 (right).
  */
 public class GameUIController {
 
-    private static final int CELL = 70;
+    private static final int CELL = 60;
     private static final int ROWS = GameState.ROWS;
     private static final int COLS = GameState.COLS;
 
@@ -47,22 +47,20 @@ public class GameUIController {
     private CreatureType selectedDefender       = null;
     private Button       selectedDefenderButton = null;
 
-    private StackPane   gridContainer;
     private GridPane    gridPane;
-    private StackPane[][] cellPanes;
+    private StackPane[] [] cellPanes;
     private Canvas[][]   cellCanvases;
 
-    private int       selectedRow   = -1;
-    private int       selectedCol   = -1;
+    private int       selectedRow = -1;
+    private int       selectedCol = -1;
     private Rectangle selectionRect = null;
-    private Timeline  selectionPulse = null;
 
-    private Button playPauseBtn;
+    private Button   playPauseBtn;
     private Timeline gameLoop;
     private boolean  isPlaying = false;
 
     private ObservableList<String> logItems;
-    private ListView<String> logView;
+    private ListView<String>       logView;
 
     public GameUIController(Stage stage) {
     }
@@ -80,31 +78,42 @@ public class GameUIController {
     }
 
     private HBox buildTopBar() {
-        topBar = new HBox(14);
+        topBar = new HBox();
         topBar.setAlignment(Pos.CENTER_LEFT);
-        topBar.setPadding(new Insets(0, 16, 0, 16));
-        topBar.setPrefHeight(50);
+        topBar.setPadding(new Insets(0, 12, 0, 12));
+        topBar.setPrefHeight(44);
         topBar.setStyle("-fx-background-color: #16213e;");
 
-        phaseLabel = new Label("DAY");
-        phaseLabel.setFont(Font.font("Arial", FontWeight.BOLD, 16));
-        phaseLabel.setTextFill(Color.WHITE);
+        Label attackDir = new Label("ATTACK →");
+        attackDir.setFont(Font.font("Arial", FontWeight.BOLD, 12));
+        attackDir.setTextFill(Color.web("#ef5350"));
+        attackDir.setPadding(new Insets(0, 12, 0, 0));
 
-        Separator sep = new Separator();
-        sep.setStyle("-fx-background-color: rgba(255,255,255,0.3);");
+        phaseLabel = new Label("DAY");
+        phaseLabel.setFont(Font.font("Arial", FontWeight.BOLD, 14));
+        phaseLabel.setTextFill(Color.WHITE);
+        phaseLabel.setPadding(new Insets(0, 12, 0, 0));
 
         statsLabel = new Label();
-        statsLabel.setFont(Font.font("Arial", FontWeight.BOLD, 14));
-        statsLabel.setTextFill(Color.WHITE);
+        statsLabel.setFont(Font.font("Arial", 13));
+        statsLabel.setTextFill(Color.web("#cccccc"));
 
-        topBar.getChildren().addAll(phaseLabel, sep, statsLabel);
+        Region spacer = new Region();
+        HBox.setHgrow(spacer, Priority.ALWAYS);
+
+        Label defendDir = new Label("← DEFEND");
+        defendDir.setFont(Font.font("Arial", FontWeight.BOLD, 12));
+        defendDir.setTextFill(Color.web("#66bb6a"));
+        defendDir.setPadding(new Insets(0, 0, 0, 12));
+
+        topBar.getChildren().addAll(attackDir, phaseLabel, statsLabel, spacer, defendDir);
         return topBar;
     }
 
     private VBox buildLeftPanel() {
-        leftPanel = new VBox(6);
-        leftPanel.setPrefWidth(160);
-        leftPanel.setPadding(new Insets(10, 8, 10, 8));
+        leftPanel = new VBox(4);
+        leftPanel.setPrefWidth(130);
+        leftPanel.setPadding(new Insets(8, 6, 8, 6));
         leftPanel.setStyle("-fx-background-color: #16213e;");
 
         Label title = new Label("DEFENDERS");
@@ -121,28 +130,28 @@ public class GameUIController {
     }
 
     private Button buildDefenderButton(CreatureType type) {
-        Canvas mini = new Canvas(28, 28);
+        Canvas mini = new Canvas(24, 24);
         GraphicsContext gc = mini.getGraphicsContext2D();
         gc.setFill(Color.web("#16213e"));
-        gc.fillRect(0, 0, 28, 28);
-        CreatureRenderer.render(gc, Creature.create(type, 0, 0), TimeOfDay.DAY, 0, 0, 28);
+        gc.fillRect(0, 0, 24, 24);
+        CreatureRenderer.render(gc, Creature.create(type, 0, 0), TimeOfDay.DAY, 0, 0, 24);
 
         Label nameLbl = new Label(type.displayName);
-        nameLbl.setFont(Font.font("Arial", 11));
+        nameLbl.setFont(Font.font("Arial", 10));
         nameLbl.setTextFill(Color.WHITE);
 
         Label costLbl = new Label("E " + type.energyCost);
-        costLbl.setFont(Font.font("Arial", 10));
+        costLbl.setFont(Font.font("Arial", 9));
         costLbl.setTextFill(Color.web("#ffd54f"));
 
         VBox text = new VBox(1, nameLbl, costLbl);
-        HBox inner = new HBox(6, mini, text);
+        HBox inner = new HBox(5, mini, text);
         inner.setAlignment(Pos.CENTER_LEFT);
 
         Button btn = new Button();
         btn.setGraphic(inner);
-        btn.setPrefWidth(144);
-        btn.setPrefHeight(44);
+        btn.setPrefWidth(118);
+        btn.setPrefHeight(38);
         btn.setStyle(btnStyleNormal());
         btn.setOnAction(e -> handleDefenderSelect(type, btn));
         return btn;
@@ -150,22 +159,20 @@ public class GameUIController {
 
     private static String btnStyleNormal() {
         return "-fx-background-color: #0f3460; -fx-text-fill: white;"
-             + "-fx-background-radius: 4; -fx-border-radius: 4;"
+             + "-fx-background-radius: 3; -fx-border-radius: 3;"
              + "-fx-border-color: #1a4a8a; -fx-border-width: 1;"
-             + "-fx-cursor: hand; -fx-padding: 4 6 4 6;";
+             + "-fx-cursor: hand; -fx-padding: 3 5 3 5;";
     }
 
     private static String btnStyleSelected() {
         return "-fx-background-color: #0f3460; -fx-text-fill: white;"
-             + "-fx-background-radius: 4; -fx-border-radius: 4;"
-             + "-fx-border-color: #f9a825; -fx-border-width: 0 0 0 4;"
-             + "-fx-cursor: hand; -fx-padding: 4 6 4 6;";
+             + "-fx-background-radius: 3; -fx-border-radius: 3;"
+             + "-fx-border-color: #f9a825; -fx-border-width: 0 0 0 3;"
+             + "-fx-cursor: hand; -fx-padding: 3 5 3 5;";
     }
 
     private void handleDefenderSelect(CreatureType type, Button btn) {
-        if (selectedDefenderButton != null) {
-            selectedDefenderButton.setStyle(btnStyleNormal());
-        }
+        if (selectedDefenderButton != null) selectedDefenderButton.setStyle(btnStyleNormal());
         if (selectedDefender == type) {
             selectedDefender = null;
             selectedDefenderButton = null;
@@ -176,9 +183,9 @@ public class GameUIController {
         }
     }
 
-    private BorderPane buildGridArea() {
+    private StackPane buildGridArea() {
         gridPane = new GridPane();
-        cellPanes = new StackPane[ROWS][COLS];
+        cellPanes   = new StackPane[ROWS][COLS];
         cellCanvases = new Canvas[ROWS][COLS];
 
         for (int r = 0; r < ROWS; ++r) {
@@ -201,35 +208,15 @@ public class GameUIController {
             }
         }
 
-        gridContainer = new StackPane(gridPane);
-        gridContainer.setAlignment(Pos.TOP_LEFT);
-
-        Label attackLabel = new Label("ATTACK\n  →");
-        attackLabel.setFont(Font.font("Arial", FontWeight.BOLD, 13));
-        attackLabel.setTextFill(Color.web("#ef5350"));
-        attackLabel.setAlignment(Pos.CENTER);
-        attackLabel.setPadding(new Insets(0, 6, 0, 6));
-
-        Label defendLabel = new Label("←\nDEFEND");
-        defendLabel.setFont(Font.font("Arial", FontWeight.BOLD, 13));
-        defendLabel.setTextFill(Color.web("#66bb6a"));
-        defendLabel.setAlignment(Pos.CENTER);
-        defendLabel.setPadding(new Insets(0, 6, 0, 6));
-
-        BorderPane wrapper = new BorderPane();
-        wrapper.setLeft(attackLabel);
-        wrapper.setCenter(gridContainer);
-        wrapper.setRight(defendLabel);
-        BorderPane.setAlignment(attackLabel, Pos.CENTER);
-        BorderPane.setAlignment(defendLabel, Pos.CENTER);
-
-        return wrapper;
+        StackPane container = new StackPane(gridPane);
+        container.setAlignment(Pos.TOP_LEFT);
+        return container;
     }
 
     private VBox buildRightPanel() {
-        VBox panel = new VBox(10);
-        panel.setPrefWidth(130);
-        panel.setPadding(new Insets(12, 10, 12, 10));
+        VBox panel = new VBox(8);
+        panel.setPrefWidth(100);
+        panel.setPadding(new Insets(10, 8, 10, 8));
         panel.setAlignment(Pos.TOP_CENTER);
         panel.setStyle("-fx-background-color: #16213e;");
 
@@ -247,7 +234,8 @@ public class GameUIController {
 
         if ("true".equals(System.getProperty("debug"))) {
             Button skipPhase = makeCtrlBtn("Skip Phase");
-            skipPhase.setStyle(skipPhase.getStyle() + "-fx-background-color: #4a1a6a;");
+            skipPhase.setStyle("-fx-background-color: #4a1a6a; -fx-text-fill: white;"
+                    + "-fx-background-radius: 3; -fx-cursor: hand; -fx-padding: 4 6 4 6;");
             skipPhase.setOnAction(e -> doSkipPhase());
             panel.getChildren().add(skipPhase);
         }
@@ -257,18 +245,18 @@ public class GameUIController {
 
     private Button makeCtrlBtn(String text) {
         Button btn = new Button(text);
-        btn.setPrefWidth(110);
-        btn.setPrefHeight(34);
-        btn.setFont(Font.font("Arial", 12));
+        btn.setPrefWidth(84);
+        btn.setPrefHeight(30);
+        btn.setFont(Font.font("Arial", 11));
         btn.setStyle("-fx-background-color: #0f3460; -fx-text-fill: white;"
-                   + "-fx-background-radius: 4; -fx-cursor: hand; -fx-padding: 4 8 4 8;");
+                   + "-fx-background-radius: 3; -fx-cursor: hand; -fx-padding: 3 6 3 6;");
         return btn;
     }
 
     private VBox buildBottomLog() {
         logItems = FXCollections.observableArrayList();
         logView  = new ListView<>(logItems);
-        logView.setPrefHeight(80);
+        logView.setPrefHeight(68);
         logView.setStyle("-fx-background-color: #0d0d1a; -fx-control-inner-background: #0d0d1a;");
 
         logView.setCellFactory(lv -> new ListCell<>() {
@@ -281,7 +269,7 @@ public class GameUIController {
                     return;
                 }
                 setText(item);
-                setFont(Font.font("Monospaced", 11));
+                setFont(Font.font("Monospaced", 10));
                 setStyle("-fx-background-color: #0d0d1a; -fx-padding: 1 4 1 4;");
 
                 if      (item.startsWith("[MOVE]"))   setTextFill(Color.web("#00bcd4"));
@@ -335,12 +323,7 @@ public class GameUIController {
         for (String m : msgs) addLog(m);
 
         for (int[] cell : engine.getLastAttackedCells()) {
-            flashCell(cell[0], cell[1], Color.web("#ef5350", 0.55), 200);
-        }
-
-        for (int[] pos : engine.getLastMovedCells()) {
-            Creature c = state.getCreatureAt(pos[0], pos[1]);
-            if (c != null && c.type == CreatureType.RABBIT) doRabbitHop(pos[0], pos[1]);
+            flashCell(cell[0], cell[1]);
         }
 
         redrawAll();
@@ -349,7 +332,6 @@ public class GameUIController {
         if (engine.wasPhaseChangedThisTurn()) {
             topBar.setStyle("-fx-background-color: " + state.timeOfDay.topBarHex() + ";");
             animatePhaseLabel(state.timeOfDay);
-            doPhaseTransitionOverlay(state.timeOfDay);
         }
 
         if (engine.isGameOver()) {
@@ -368,7 +350,6 @@ public class GameUIController {
                 String result = engine.placeDefender(selectedDefender, row, col);
                 addLog(result);
                 redrawCell(row, col);
-                doPlaceDefenderAnim(row, col);
                 updateTopBar();
             } catch (InvalidPlacementException e) {
                 addLog("[ERROR] " + e.getMessage());
@@ -380,20 +361,12 @@ public class GameUIController {
         selectedRow = row;
         selectedCol = col;
 
-        selectionRect = new Rectangle(66, 66);
+        selectionRect = new Rectangle(CELL - 4, CELL - 4);
         selectionRect.setFill(Color.TRANSPARENT);
         selectionRect.setStroke(Color.web("#f9a825"));
-        selectionRect.setStrokeWidth(3);
+        selectionRect.setStrokeWidth(2);
         selectionRect.setMouseTransparent(true);
         cellPanes[row][col].getChildren().add(selectionRect);
-
-        selectionPulse = new Timeline(
-                new KeyFrame(Duration.ZERO, new KeyValue(selectionRect.opacityProperty(), 1.0)),
-                new KeyFrame(Duration.millis(600), new KeyValue(selectionRect.opacityProperty(), 0.2)),
-                new KeyFrame(Duration.millis(1200), new KeyValue(selectionRect.opacityProperty(), 1.0))
-        );
-        selectionPulse.setCycleCount(Timeline.INDEFINITE);
-        selectionPulse.play();
 
         Creature c = state.getCreatureAt(row, col);
         if (c != null) {
@@ -405,7 +378,6 @@ public class GameUIController {
     }
 
     private void clearSelection() {
-        if (selectionPulse != null) { selectionPulse.stop(); selectionPulse = null; }
         if (selectionRect != null && selectedRow >= 0 && selectedCol >= 0) {
             cellPanes[selectedRow][selectedCol].getChildren().remove(selectionRect);
             selectionRect = null;
@@ -456,17 +428,17 @@ public class GameUIController {
             }
         }
 
-        gc.setStroke(Color.web("#000000", 0.22));
+        gc.setStroke(Color.web("#000000", 0.20));
         gc.setLineWidth(1);
         gc.strokeRect(0.5, 0.5, CELL - 1, CELL - 1);
     }
 
     private void updateTopBar() {
-        phaseLabel.setText(state.timeOfDay.label());
+        phaseLabel.setText(state.timeOfDay.label() + "  |  ");
         statsLabel.setText("Energy: " + state.energy
-                + "  |  Score: " + state.score
-                + "  |  Turn: "  + state.turn
-                + "  |  Wave: "  + state.wave);
+                + "   Score: " + state.score
+                + "   Turn: "  + state.turn
+                + "   Wave: "  + state.wave);
     }
 
     private void addLog(String msg) {
@@ -475,53 +447,24 @@ public class GameUIController {
         logView.scrollTo(logItems.size() - 1);
     }
 
-    private void flashCell(int row, int col, Color color, int ms) {
-        Rectangle flash = new Rectangle(CELL, CELL, color);
+    private void flashCell(int row, int col) {
+        Rectangle flash = new Rectangle(CELL, CELL, Color.web("#ef5350", 0.50));
         flash.setMouseTransparent(true);
         cellPanes[row][col].getChildren().add(flash);
-        FadeTransition ft = new FadeTransition(Duration.millis(ms), flash);
+        FadeTransition ft = new FadeTransition(Duration.millis(180), flash);
         ft.setFromValue(1.0);
         ft.setToValue(0.0);
         ft.setOnFinished(e -> cellPanes[row][col].getChildren().remove(flash));
         ft.play();
     }
 
-    private void doPlaceDefenderAnim(int row, int col) {
-        ScaleTransition st = new ScaleTransition(Duration.millis(150), cellPanes[row][col]);
-        st.setFromX(0.8); st.setFromY(0.8);
-        st.setToX(1.0);   st.setToY(1.0);
-        st.play();
-    }
-
-    private void doRabbitHop(int row, int col) {
-        TranslateTransition hop = new TranslateTransition(Duration.millis(60), cellPanes[row][col]);
-        hop.setByY(-4);
-        hop.setAutoReverse(true);
-        hop.setCycleCount(2);
-        hop.setOnFinished(e -> cellPanes[row][col].setTranslateY(0));
-        hop.play();
-    }
-
-    private void doPhaseTransitionOverlay(TimeOfDay phase) {
-        double w = (double) COLS * CELL;
-        double h = (double) ROWS * CELL;
-        Rectangle overlay = new Rectangle(w, h, Color.web(phase.topBarHex(), 0.30));
-        overlay.setMouseTransparent(true);
-        gridContainer.getChildren().add(overlay);
-        FadeTransition ft = new FadeTransition(Duration.seconds(1), overlay);
-        ft.setFromValue(1.0);
-        ft.setToValue(0.0);
-        ft.setOnFinished(e -> gridContainer.getChildren().remove(overlay));
-        ft.play();
-    }
-
     private void animatePhaseLabel(TimeOfDay newPhase) {
-        FadeTransition out = new FadeTransition(Duration.millis(200), phaseLabel);
+        FadeTransition out = new FadeTransition(Duration.millis(150), phaseLabel);
         out.setFromValue(1.0);
         out.setToValue(0.0);
         out.setOnFinished(e -> {
-            phaseLabel.setText(newPhase.label());
-            FadeTransition in = new FadeTransition(Duration.millis(400), phaseLabel);
+            phaseLabel.setText(newPhase.label() + "  |  ");
+            FadeTransition in = new FadeTransition(Duration.millis(300), phaseLabel);
             in.setFromValue(0.0);
             in.setToValue(1.0);
             in.play();
@@ -535,36 +478,31 @@ public class GameUIController {
 
         StackPane overlay = new StackPane();
         overlay.setPrefSize(w, h);
-        overlay.setStyle("-fx-background-color: rgba(0,0,0,0.82);");
+        overlay.setStyle("-fx-background-color: rgba(0,0,0,0.80);");
 
         Label title = new Label(win ? "YOU WIN!" : "GAME OVER");
-        title.setFont(Font.font("Arial", FontWeight.BOLD, 40));
+        title.setFont(Font.font("Arial", FontWeight.BOLD, 36));
         title.setTextFill(win ? Color.web("#66bb6a") : Color.web("#ef5350"));
 
-        Label scoreLbl = new Label("Final Score: " + state.score);
-        scoreLbl.setFont(Font.font("Arial", 22));
+        Label scoreLbl = new Label("Score: " + state.score);
+        scoreLbl.setFont(Font.font("Arial", 20));
         scoreLbl.setTextFill(Color.WHITE);
 
         Button again = new Button("Play Again");
-        again.setFont(Font.font("Arial", 16));
+        again.setFont(Font.font("Arial", 14));
         again.setStyle("-fx-background-color: #0f3460; -fx-text-fill: white;"
-                + "-fx-background-radius: 4; -fx-padding: 8 24 8 24; -fx-cursor: hand;");
+                + "-fx-background-radius: 3; -fx-padding: 6 20 6 20; -fx-cursor: hand;");
         again.setOnAction(e -> {
-            gridContainer.getChildren().remove(overlay);
+            ((StackPane) gridPane.getParent()).getChildren().remove(overlay);
             logItems.clear();
             initGame();
         });
 
-        VBox content = new VBox(14, title, scoreLbl, again);
+        VBox content = new VBox(12, title, scoreLbl, again);
         content.setAlignment(Pos.CENTER);
         overlay.getChildren().add(content);
 
-        overlay.setTranslateY(-h);
-        gridContainer.getChildren().add(overlay);
-
-        TranslateTransition slide = new TranslateTransition(Duration.millis(400), overlay);
-        slide.setToY(0);
-        slide.play();
+        ((StackPane) gridPane.getParent()).getChildren().add(overlay);
     }
 
     private void togglePlay() {
@@ -583,7 +521,7 @@ public class GameUIController {
         List<Creature> snapshot = state.snapshotCreatures();
         try {
             SaveManager.saveDefault(state);
-            addLog("[GAME] Saved " + snapshot.size() + " creatures to savegame.txt.");
+            addLog("[GAME] Saved " + snapshot.size() + " creatures.");
         } catch (IOException e) {
             addLog("[ERROR] Save failed: " + e.getMessage());
         }
@@ -593,7 +531,7 @@ public class GameUIController {
         try {
             GridLoader.loadDefault(state);
             SaveManager.loadDefault(state);
-            addLog("[GAME] Loaded from savegame.txt.");
+            addLog("[GAME] Loaded save.");
             redrawAll();
             updateTopBar();
         } catch (IOException e) {

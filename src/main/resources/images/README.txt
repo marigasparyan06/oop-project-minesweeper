@@ -8,8 +8,8 @@ NAMING CONVENTION
 -----------------
   <creaturekey>_<phase>.png
 
-  creaturekey  = lowercase creature name (no spaces)
-  phase        = day | dawn | dusk | night
+  creaturekey = lowercase creature name (no spaces)
+  phase = day | dawn | dusk | night
 
 If a phase variant is missing, the renderer falls back to _day.
 If _day is also missing, the renderer falls back to the Canvas silhouette.

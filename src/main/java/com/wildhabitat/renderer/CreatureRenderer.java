@@ -14,7 +14,7 @@ import java.util.HashMap;
 /**
  * Renders creatures using PNG images from resources/images/.
  * If no image is found for a creature, a colored oval placeholder is drawn instead.
- * Expected file naming: {creature}_{phase}.png (e.g. wolf_day.png, reedwarden_night.png).
+ * Expected file naming: {creature}.png (e.g. attacker1.png, defender5.png).
  */
 public class CreatureRenderer {
 
@@ -25,41 +25,32 @@ public class CreatureRenderer {
     }
 
     private static void loadAllImages() {
-        String[] types  = {"wolf","thornbush","nightowl","batdefender",
-                            "stoneguard","reedwarden","rabbit","boar",
-                            "nightstalker","swampcrawler"};
-        String[] phases = {"day","dawn","dusk","night"};
+        String[] types = {"attacker1","attacker2","attacker3","attacker4","attacker5",
+                           "defender1","defender2","defender3","defender4","defender5"};
 
         for (String type : types) {
-            for (String phase : phases) {
-                String key  = type + "_" + phase;
-                String path = "/images/" + key + ".png";
-                try {
-                    InputStream is = CreatureRenderer.class.getResourceAsStream(path);
-                    if (is != null) {
-                        imageCache.put(key, new Image(is, 128, 128, true, true));
-                        is.close();
-                    }
-                } catch (Exception e) {
-                    System.out.println("[Renderer] No image for: " + key);
+            String path = "/images/" + type + ".png";
+            try {
+                InputStream is = CreatureRenderer.class.getResourceAsStream(path);
+                if (is != null) {
+                    imageCache.put(type, new Image(is, 128, 128, true, true));
+                    is.close();
                 }
+            } catch (Exception e) {
+                System.out.println("[Renderer] No image for: " + type);
             }
         }
     }
 
     /**
      * Draws the creature into the given cell area.
-     * Tries the phase-specific PNG first, then the day PNG, then a colored oval placeholder.
+     * Uses the creature's PNG image if available, otherwise draws a colored oval placeholder.
      */
     public static void render(GraphicsContext gc, Creature creature, TimeOfDay phase,
                                double cellX, double cellY, double cellSize) {
         String typeName = creature.type.name().toLowerCase();
-        String phaseKey = typeName + "_" + phase.name().toLowerCase();
 
-        Image img = imageCache.get(phaseKey);
-        if (img == null) {
-            img = imageCache.get(typeName + "_day");
-        }
+        Image img = imageCache.get(typeName);
 
         double pad = (cellSize - 52) / 2.0;
 
@@ -75,12 +66,12 @@ public class CreatureRenderer {
     private static void applyNightGlowOverlay(GraphicsContext gc, CreatureType type,
                                                TimeOfDay phase, double cx, double cy, double size) {
         if (phase == TimeOfDay.DAY) {
-            if (type == CreatureType.NIGHTOWL) {
+            if (type == CreatureType.DEFENDER2) {
                 gc.setGlobalAlpha(0.4);
                 gc.setFill(Color.web("#000000", 0.6));
                 gc.fillRect(cx, cy, size, size);
                 gc.setGlobalAlpha(1.0);
-            } else if (type == CreatureType.BATDEFENDER) {
+            } else if (type == CreatureType.DEFENDER3) {
                 gc.setGlobalAlpha(0.15);
                 gc.setFill(Color.web("#000000", 0.85));
                 gc.fillRect(cx, cy, size, size);
@@ -91,10 +82,10 @@ public class CreatureRenderer {
 
         String glowHex;
         switch (type) {
-            case WOLF:         glowHex = "#ffe082"; break;
-            case NIGHTOWL:     glowHex = "#ce93d8"; break;
-            case BATDEFENDER:  glowHex = "#64b5f6"; break;
-            case NIGHTSTALKER: glowHex = "#ef5350"; break;
+            case ATTACKER1: glowHex = "#ffe082"; break;
+            case DEFENDER2: glowHex = "#ce93d8"; break;
+            case DEFENDER3: glowHex = "#64b5f6"; break;
+            case ATTACKER4: glowHex = "#ef5350"; break;
             default: return;
         }
 

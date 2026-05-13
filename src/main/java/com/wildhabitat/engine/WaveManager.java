@@ -24,43 +24,43 @@ public class WaveManager {
 
         switch (waveNumber) {
             case 1:
-                spawnGroup(spawns, CreatureType.WOLF, 3);
+                spawnGroup(spawns, CreatureType.ATTACKER1, 3);
                 break;
             case 2:
-                spawnGroup(spawns, CreatureType.WOLF,   2);
-                spawnGroup(spawns, CreatureType.RABBIT, 2);
+                spawnGroup(spawns, CreatureType.ATTACKER1, 2);
+                spawnGroup(spawns, CreatureType.ATTACKER2, 2);
                 break;
             case 3:
-                spawnGroup(spawns, CreatureType.WOLF,  4);
-                spawnGroup(spawns, CreatureType.BOAR,  1);
+                spawnGroup(spawns, CreatureType.ATTACKER1, 4);
+                spawnGroup(spawns, CreatureType.ATTACKER3, 1);
                 break;
             case 4:
-                spawnGroup(spawns, CreatureType.WOLF,   3);
-                spawnGroup(spawns, CreatureType.RABBIT, 2);
-                spawnGroup(spawns, CreatureType.BOAR,   1);
+                spawnGroup(spawns, CreatureType.ATTACKER1, 3);
+                spawnGroup(spawns, CreatureType.ATTACKER2, 2);
+                spawnGroup(spawns, CreatureType.ATTACKER3, 1);
                 break;
             case 5:
-                spawnGroup(spawns, CreatureType.WOLF,         4);
-                spawnGroup(spawns, CreatureType.SWAMPCRAWLER, 2);
-                spawnGroup(spawns, CreatureType.NIGHTSTALKER, 1);
+                spawnGroup(spawns, CreatureType.ATTACKER1, 4);
+                spawnGroup(spawns, CreatureType.ATTACKER5, 2);
+                spawnGroup(spawns, CreatureType.ATTACKER4, 1);
                 break;
             case 6:
-                spawnGroup(spawns, CreatureType.WOLF,         3);
-                spawnGroup(spawns, CreatureType.RABBIT,       3);
-                spawnGroup(spawns, CreatureType.NIGHTSTALKER, 2);
+                spawnGroup(spawns, CreatureType.ATTACKER1, 3);
+                spawnGroup(spawns, CreatureType.ATTACKER2, 3);
+                spawnGroup(spawns, CreatureType.ATTACKER4, 2);
                 break;
             case 7:
-                spawnGroup(spawns, CreatureType.BOAR,         3);
-                spawnGroup(spawns, CreatureType.SWAMPCRAWLER, 3);
-                spawnGroup(spawns, CreatureType.NIGHTSTALKER, 2);
+                spawnGroup(spawns, CreatureType.ATTACKER3, 3);
+                spawnGroup(spawns, CreatureType.ATTACKER5, 3);
+                spawnGroup(spawns, CreatureType.ATTACKER4, 2);
                 break;
             default: {
                 int extra = (waveNumber - 8) / 2;
-                spawnGroup(spawns, CreatureType.WOLF,         3 + extra);
-                spawnGroup(spawns, CreatureType.RABBIT,       2 + extra);
-                spawnGroup(spawns, CreatureType.BOAR,         1 + extra / 2);
-                spawnGroup(spawns, CreatureType.NIGHTSTALKER, 1 + extra / 3);
-                spawnGroup(spawns, CreatureType.SWAMPCRAWLER, 1 + extra / 2);
+                spawnGroup(spawns, CreatureType.ATTACKER1, 3 + extra);
+                spawnGroup(spawns, CreatureType.ATTACKER2, 2 + extra);
+                spawnGroup(spawns, CreatureType.ATTACKER3, 1 + extra / 2);
+                spawnGroup(spawns, CreatureType.ATTACKER4, 1 + extra / 3);
+                spawnGroup(spawns, CreatureType.ATTACKER5, 1 + extra / 2);
                 break;
             }
         }

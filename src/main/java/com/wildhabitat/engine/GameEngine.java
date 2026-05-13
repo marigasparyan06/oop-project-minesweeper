@@ -140,7 +140,6 @@ public class GameEngine {
     private void moveAttackers() {
         for (Creature a : state.livingAttackers()) {
             if (!a.isAlive()) continue;
-
             if (!a.canActDuringPhase(state.timeOfDay)) continue;
 
             Terrain t = state.terrain[a.row][a.col];
@@ -188,7 +187,7 @@ public class GameEngine {
 
             Terrain terrain = state.terrain[def.row][def.col];
 
-            if (def.type == CreatureType.REEDWARDEN && terrain.isWater()) {
+            if (def.type == CreatureType.DEFENDER5 && terrain.isWater()) {
                 power = (int) (power * 1.2);
             }
 
@@ -196,17 +195,17 @@ public class GameEngine {
             if (targets.isEmpty()) continue;
 
             switch (def.type) {
-                case THORNBUSH:
-                case BATDEFENDER:
-                case REEDWARDEN:
+                case DEFENDER1:
+                case DEFENDER3:
+                case DEFENDER5:
                     for (Creature t : targets) dealDamage(def, t, power, terrain);
                     break;
 
-                case STONEGUARD:
+                case DEFENDER4:
                     dealDamage(def, Collections.max(targets), power * 2, terrain);
                     break;
 
-                case NIGHTOWL:
+                case DEFENDER2:
                     dealDamage(def, Collections.min(targets), power, terrain);
                     break;
 
@@ -231,7 +230,7 @@ public class GameEngine {
         attackedCells.add(new int[]{target.row, target.col});
         state.log("[ATTACK] " + def.type.abbrev + " → " + target.type.abbrev
                 + " for " + power + " dmg (hp left: " + target.health + ")");
-        if (def.type == CreatureType.THORNBUSH) target.applySlow(1);
+        if (def.type == CreatureType.DEFENDER1) target.applySlow(1);
     }
 
     private void purgeAndScore() {

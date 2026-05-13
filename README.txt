@@ -1,142 +1,71 @@
-﻿WildHabitat
-===========
-A wave-defence game set in a wildlife habitat.
-Runs in two modes: a plain terminal (CLI) or a JavaFX graphical UI.
+WildHabitat
 
-Prerequisites
--------------
-- JDK 17 or newer
-  Download: https://adoptium.net  or  https://www.oracle.com/java/technologies/downloads/
-  Verify:   java -version
-
-- JavaFX SDK 21 or newer  (UI mode only — CLI needs no JavaFX)
-  Download: https://gluonhq.com/products/javafx/
-  Pick the SDK zip for your OS, unzip it somewhere convenient.
+A tower defense game built with Java 17 and JavaFX 21
+The player places defenders on a grid to stop waves of attackers from crossing to the right side
+The game has a day and night cycle that changes creature speed and power every few turns
 
 
-Setup — macOS / Linux
----------------------
-1. Install JDK 17+ and confirm:
-     java -version
-     javac -version
+How to run
 
-2. Download and unzip JavaFX SDK (UI only).
-   Example unzip location: /opt/javafx-sdk-21/
-
-3. Set JAVAFX_PATH (UI only):
-     export JAVAFX_PATH=/opt/javafx-sdk-21/lib
-   Add this line to ~/.bashrc or ~/.zshrc to make it permanent.
-
-4. From the project root directory:
-
-   CLI mode (no JavaFX needed):
-     chmod +x run_cli.sh
-     ./run_cli.sh
-
-   UI mode:
-     chmod +x run_ui.sh
-     ./run_ui.sh
+    mvn clean javafx:run
 
 
-Setup — Windows
----------------
-1. Install JDK 17+ and confirm in Command Prompt:
-     java -version
-     javac -version
+How to play
 
-2. Download and unzip JavaFX SDK (UI only).
-   Example unzip location: C:\javafx-sdk-21\
-
-3. Set JAVAFX_PATH (UI only) — in the same Command Prompt session:
-     set JAVAFX_PATH=C:\javafx-sdk-21\lib
-   Or set it permanently via System Properties > Environment Variables.
-
-4. From the project root directory:
-
-   CLI mode (no JavaFX needed):
-     run_cli.bat
-
-   UI mode:
-     run_ui.bat
+Select a defender from the left panel then click a grid cell to place it
+Click Start to begin automatic turn processing
+Click a cell with no defender selected to see creature info in the log
+Use Save and Load to persist your game
+Use Load Wave to manually trigger the next wave
 
 
-Compiling manually (without the scripts)
------------------------------------------
-CLI:
-  mkdir out\cli
-  javac -d out\cli src\cli\*.java src\core\*.java
-  java -cp out\cli CLIGame
+The grid
 
-UI (replace path with your actual JavaFX SDK location):
-  mkdir out\ui
-  javac --module-path "%JAVAFX_PATH%" --add-modules javafx.controls,javafx.graphics ^
-        -d out\ui src\cli\*.java src\core\*.java src\ui\*.java
-  java --module-path "%JAVAFX_PATH%" --add-modules javafx.controls,javafx.graphics ^
-       -cp out\ui GameUI
-
-Debug mode (enables the "Skip Phase" button in the UI):
-  java -Ddebug=true --module-path "%JAVAFX_PATH%" --add-modules javafx.controls,javafx.graphics ^
-       -cp out\ui GameUI
+7 rows and 11 columns
+Attackers spawn on the left side and march right
+If any attacker reaches the right edge the game is over
+Rows 2 and 5 are water terrain
+Rows 0 1 3 4 6 are land terrain
 
 
-CLI commands
-------------
-  place <type> <row> <col>   Place a defender (e.g. place Thornbush 3 5)
-  next                       Advance one turn
-  wave                       Start the next wave
-  save                       Save game to savegame.txt
-  load                       Load game from savegame.txt
-  log                        Print recent event log
-  defenders                  List defender types and costs
-  quit                       Exit
+Creatures
 
-Defender types: Thornbush, NightOwl, BatDefender, StoneGuard, ReedWarden
+There are 5 attacker types and 5 defender types
+Each creature can only be placed on or travel through certain terrain types
+Water creatures like Attacker5 and Defender5 only work on water rows
+Land creatures like Attacker2 and Defender1 only work on land rows
+Attacker4 and Defender3 can access all terrain
 
 
-UI controls
------------
-  Left panel   — click a defender type to select it, then click a grid cell to place it
-  Next Turn    — advance the simulation one turn
-  Start/Pause  — pause automatic turn processing
-  Save / Load  — save or restore from savegame.txt
-  Load Wave    — manually trigger the next attacker wave
+Day and night cycle
+
+The phase changes every 3 turns cycling through dawn day dusk and night
+At dawn attackers slow to 75 percent speed and defenders gain 10 percent power
+At dusk attackers gain 10 percent speed
+At night attackers gain 25 percent speed and 15 percent attack power
+At night defender placement costs 15 percent less energy
+Attacker4 is frozen and cannot move during the day
+Defender2 and Defender3 are night specialists and gain 25 percent power at night
 
 
-PNG image assets
-----------------
-Drop creature PNGs into:  resources/images/
-See resources/images/README.txt for the full list of expected filenames,
-recommended dimensions (64x64 or 128x128), and free asset sources.
+Defender behavior
 
-The renderer falls back gracefully:
-  missing phase variant  ->  uses <creature>_day.png
-  missing _day.png       ->  draws a canvas silhouette
-  any render error       ->  shows an emoji (e.g. Wolf=🐺, Thornbush=🌿)
+Defender1 hits all enemies in range and applies a slow effect
+Defender2 targets the weakest enemy in range
+Defender3 hits all enemies in range
+Defender4 targets the strongest enemy in range with double damage
+Defender5 hits all enemies in range and deals 20 percent more damage on water
 
 
-Project layout
---------------
-  src/core/    Shared game logic — no JavaFX, plain JDK only
-  src/cli/     Terminal interface — no JavaFX, compiles without JavaFX SDK
-  src/ui/      JavaFX graphical interface — requires JavaFX SDK
-  resources/   Images and other assets
-  gridstate.txt   Terrain map (loaded on startup, saved on request)
-  savegame.txt    Game save (score, turn, creatures, day/night state)
+Win and lose
+
+Survive all 10 waves to win
+If any attacker reaches the right edge of the grid the game ends
 
 
-Day/Night cycle
----------------
-Every 6 turns cycles through: DAWN -> DAY -> DUSK -> NIGHT (3 turns each)
+Files
 
-  DAY   Baseline stats. Full terrain colours.
-  DAWN  Attackers 75% speed. Defenders +10% power. Warm-orange tint.
-  DUSK  Attackers +10% speed. Amber tint.
-  NIGHT Attackers +25% speed, +15% attack. Defenders -10% effectiveness
-        (NightOwl and BatDefender unaffected). Placement costs -15% energy.
-        NightStalker is frozen during DAY.
-
-
-Win / Lose
-----------
-  Win:  Survive all 10 waves.
-  Lose: Any attacker reaches the right edge of the grid.
+gridstate.txt    terrain layout loaded on startup
+savegame.txt     saved game state including score wave and all creature positions
+src/main/java    all source code
+src/main/resources/images    creature PNG images named attacker1.png through defender5.png

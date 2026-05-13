@@ -15,7 +15,7 @@ public class GameUI extends Application {
     @Override
     public void start(Stage primaryStage) {
         GameUIController controller = new GameUIController(primaryStage);
-        Scene scene = new Scene(controller.buildRoot(), 1080, 640);
+        Scene scene = new Scene(controller.buildRoot(), 920, 556);
         
         scene.getStylesheets(); // no external stylesheet — all style via setStyle()
         primaryStage.setTitle("WildHabitat");

@@ -8,13 +8,9 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * Core game logic.
- * Call nextTurn() once per player action to advance the simulation by one step.
- *
- * placeDefender() throws InvalidPlacementException (custom exception) on illegal moves.
- * defendersAttack() uses Collections.min / Collections.max via Creature's Comparable
- * implementation to select the weakest / strongest target.
- * moveAttackers() calls canActDuringPhase() from the Combatant interface.
+ * Core game logic. Call nextTurn() once per step to advance the simulation.
+ * placeDefender() throws InvalidPlacementException on illegal moves.
+ * defendersAttack() uses Collections.min/max via Creature's Comparable implementation.
  */
 public class GameEngine {
 
@@ -38,8 +34,6 @@ public class GameEngine {
         this.state = state;
     }
 
-    // ── Public accessors ──────────────────────────────────────────────────────
-
     public GameState      getState()                  { return state; }
     public boolean        isGameOver()                { return gameOver; }
     public boolean        didPlayerWin()              { return playerWon; }
@@ -47,8 +41,7 @@ public class GameEngine {
     public List<int[]>    getLastMovedCells()         { return movedCells; }
     public boolean        wasPhaseChangedThisTurn()   { return phaseChangedThisTurn; }
 
-    // ── Turn processing ───────────────────────────────────────────────────────
-
+    /** Advances the simulation by one turn and returns the messages generated. */
     public List<String> nextTurn() {
         if (gameOver) return List.of("[GAME] Game is already over.");
 
@@ -78,12 +71,10 @@ public class GameEngine {
         return new ArrayList<>(state.messageLog);
     }
 
-    // ── Defender placement ────────────────────────────────────────────────────
-
     /**
      * Places a defender on the grid.
      * Throws InvalidPlacementException if the move is illegal (wrong type, out of bounds,
-     * occupied cell, or not enough energy) — callers must catch it.
+     * wrong terrain, occupied cell, or not enough energy).
      */
     public String placeDefender(CreatureType type, int row, int col) {
         if (!type.isDefender()) {
@@ -96,6 +87,11 @@ public class GameEngine {
         if (!state.isCellEmpty(row, col)) {
             throw new InvalidPlacementException(
                     "Cell (" + row + "," + col + ") is already occupied.");
+        }
+        Terrain cellTerrain = state.terrain[row][col];
+        if (!type.canAccessTerrain(cellTerrain)) {
+            throw new InvalidPlacementException(
+                    type.displayName + " cannot be placed on " + cellTerrain + " terrain.");
         }
 
         int cost = effectiveCost(type);
@@ -111,7 +107,7 @@ public class GameEngine {
                 + ") for " + cost + " energy.";
     }
 
-    /** Energy cost with NIGHT discount applied. */
+    /** Returns the energy cost for a defender, with a NIGHT discount applied if active. */
     public int effectiveCost(CreatureType type) {
         if (!type.isDefender()) return 0;
         int base = type.energyCost;
@@ -121,12 +117,16 @@ public class GameEngine {
         return base;
     }
 
-    /** Spawn the next wave immediately (also called by the "Load Wave" button). */
+    /** Spawns the next wave immediately. Attackers are placed on terrain-compatible rows. */
     public void triggerNextWave() {
         List<Creature> wave = WaveManager.buildWave(state.wave);
         for (Creature c : wave) {
             int attempts = 0;
-            while (state.getCreatureAt(c.row, c.col) != null && attempts < GameState.ROWS) {
+            while (attempts < GameState.ROWS * 2) {
+                Terrain rowTerrain = state.terrain[c.row][0];
+                if (c.type.canAccessTerrain(rowTerrain) && state.getCreatureAt(c.row, 0) == null) {
+                    break;
+                }
                 c.row = (c.row + 1) % GameState.ROWS;
                 attempts++;
             }
@@ -137,13 +137,10 @@ public class GameEngine {
         waveCooldown = 0;
     }
 
-    // ── Private turn steps ────────────────────────────────────────────────────
-
     private void moveAttackers() {
         for (Creature a : state.livingAttackers()) {
             if (!a.isAlive()) continue;
 
-            // canActDuringPhase() from the Combatant interface — e.g. NightStalker frozen in DAY
             if (!a.canActDuringPhase(state.timeOfDay)) continue;
 
             Terrain t = state.terrain[a.row][a.col];
@@ -176,7 +173,6 @@ public class GameEngine {
             }
             if (target == null) continue;
 
-            // Polymorphic call — AttackerCreature.getEffectivePower()
             int power = attacker.getEffectivePower(state.timeOfDay);
             target.takeDamage(power);
             attackedCells.add(new int[]{target.row, target.col});
@@ -188,13 +184,10 @@ public class GameEngine {
     private void defendersAttack() {
         for (Creature def : state.livingDefenders()) {
             int range = def.type.attackRange;
-
-            // Polymorphic call — DefenderCreature.getEffectivePower() handles all phase scaling
             int power = def.getEffectivePower(state.timeOfDay);
 
             Terrain terrain = state.terrain[def.row][def.col];
 
-            // ReedWarden terrain bonus (needs terrain context so stays in engine)
             if (def.type == CreatureType.REEDWARDEN && terrain.isWater()) {
                 power = (int) (power * 1.2);
             }
@@ -210,12 +203,10 @@ public class GameEngine {
                     break;
 
                 case STONEGUARD:
-                    // Targets the creature with the most HP — uses Comparable natural order
                     dealDamage(def, Collections.max(targets), power * 2, terrain);
                     break;
 
                 case NIGHTOWL:
-                    // Targets the creature with the least HP — uses Comparable natural order
                     dealDamage(def, Collections.min(targets), power, terrain);
                     break;
 

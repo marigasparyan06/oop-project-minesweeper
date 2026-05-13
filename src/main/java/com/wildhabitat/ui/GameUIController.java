@@ -1,12 +1,12 @@
 package com.wildhabitat.ui;
 
 import com.wildhabitat.engine.GameEngine;
-import com.wildhabitat.exception.InvalidPlacementException;
 import com.wildhabitat.io.GridLoader;
 import com.wildhabitat.io.SaveManager;
 import com.wildhabitat.model.*;
 import com.wildhabitat.renderer.CreatureRenderer;
 
+import exception.InvalidPlacementException;
 import javafx.animation.*;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -36,31 +36,31 @@ public class GameUIController {
     private static final int ROWS = GameState.ROWS;
     private static final int COLS = GameState.COLS;
 
-    private GameState  state;
+    private GameState state;
     private GameEngine engine;
 
-    private HBox  topBar;
+    private HBox topBar;
     private Label phaseLabel;
     private Label statsLabel;
 
     private VBox leftPanel;
-    private CreatureType selectedDefender       = null;
-    private Button       selectedDefenderButton = null;
+    private CreatureType selectedDefender = null;
+    private Button selectedDefenderButton = null;
 
-    private GridPane    gridPane;
-    private StackPane[] [] cellPanes;
-    private Canvas[][]   cellCanvases;
+    private GridPane gridPane;
+    private StackPane[][] cellPanes;
+    private Canvas[][] cellCanvases;
 
-    private int       selectedRow = -1;
-    private int       selectedCol = -1;
+    private int selectedRow = -1;
+    private int selectedCol = -1;
     private Rectangle selectionRect = null;
 
-    private Button   playPauseBtn;
+    private Button playPauseBtn;
     private Timeline gameLoop;
-    private boolean  isPlaying = false;
+    private boolean isPlaying = false;
 
     private ObservableList<String> logItems;
-    private ListView<String>       logView;
+    private ListView<String> logView;
 
     public GameUIController(Stage stage) {
     }
@@ -185,7 +185,7 @@ public class GameUIController {
 
     private StackPane buildGridArea() {
         gridPane = new GridPane();
-        cellPanes   = new StackPane[ROWS][COLS];
+        cellPanes = new StackPane[ROWS][COLS];
         cellCanvases = new Canvas[ROWS][COLS];
 
         for (int r = 0; r < ROWS; ++r) {

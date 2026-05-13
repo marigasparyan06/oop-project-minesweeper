@@ -33,9 +33,7 @@ public abstract class Creature implements Combatant, Cloneable, Comparable<Creat
 
     /** Creates the correct concrete subtype based on the creature's role. */
     public static Creature create(CreatureType type, int row, int col) {
-        return type.isAttacker()
-                ? new AttackerCreature(type, row, col)
-                : new DefenderCreature(type, row, col);
+        return type.isAttacker() ? new AttackerCreature(type, row, col) : new DefenderCreature(type, row, col);
     }
 
     /** Creates with an explicit health value, used when loading a save file. */

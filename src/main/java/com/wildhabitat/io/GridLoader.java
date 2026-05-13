@@ -22,7 +22,7 @@ public class GridLoader {
             boolean firstLine = true;
 
             while ((line = reader.readLine()) != null && row < GameState.ROWS) {
-                // Strip UTF-8 BOM (﻿) that PowerShell and some editors prepend
+                
                 if (firstLine && line.startsWith("﻿")) {
                     line = line.substring(1);
                 }

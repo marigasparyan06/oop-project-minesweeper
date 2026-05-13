@@ -33,7 +33,7 @@ public class CLIGame {
     }
 
     public void run() {
-        System.out.println("=== WildHabitat CLI ===");
+        System.out.println("WildHabitat CLI");
         System.out.println("Loading grid...");
 
         try {
@@ -118,7 +118,6 @@ public class CLIGame {
 
         //  Game over
         System.out.println();
-        System.out.println("══════════════════════════════════════════════════");
         
         if (engine.didPlayerWin()) {
             System.out.println("  *** YOU WIN! All waves cleared! ***");
@@ -128,7 +127,6 @@ public class CLIGame {
         }
 
         System.out.println("  Final Score: " + state.score);
-        System.out.println("══════════════════════════════════════════════════");
         
         scanner.close();
     }
@@ -223,7 +221,7 @@ public class CLIGame {
 
     private void printGrid() {
         // Header — matches spec format exactly
-        System.out.printf("=== WildHabitat CLI | Turn %d | Energy: %d | Score: %d | Wave: %d | Phase: %s ===%n",
+        System.out.printf("WildHabitat CLI | Turn %d | Energy: %d | Score: %d | Wave: %d | Phase: %s %n",
                 state.turn, state.energy, state.score, state.wave, state.timeOfDay.shortName());
         
         System.out.println(state.timeOfDay.phaseNote());

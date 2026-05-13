@@ -5,11 +5,11 @@ public enum Terrain {
 
     public String toCode() {
         switch (this) {
-            case GRASS:         return "GR";
-            case STONE:         return "ST";
+            case GRASS: return "GR";
+            case STONE: return "ST";
             case SHALLOW_WATER: return "SW";
-            case DEEP_WATER:    return "DW";
-            default:            return "??";
+            case DEEP_WATER: return "DW";
+            default: return "??";
         }
     }
 
@@ -30,10 +30,10 @@ public enum Terrain {
 
     public static Terrain fromString(String s) {
         switch (s.trim().toUpperCase()) {
-            case "GRASS":         return GRASS;
-            case "STONE":         return STONE;
+            case "GRASS": return GRASS;
+            case "STONE": return STONE;
             case "SHALLOW_WATER": return SHALLOW_WATER;
-            case "DEEP_WATER":    return DEEP_WATER;
+            case "DEEP_WATER": return DEEP_WATER;
             default: throw new IllegalArgumentException("Unknown terrain: " + s);
         }
     }

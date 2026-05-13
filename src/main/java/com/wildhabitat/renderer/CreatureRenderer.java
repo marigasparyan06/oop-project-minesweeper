@@ -108,9 +108,15 @@ public class CreatureRenderer {
 
         double ratio = (double) c.health / c.maxHealth;
         Color barColor;
-        if (ratio > 0.6)      barColor = Color.web("#66bb6a");
-        else if (ratio > 0.3) barColor = Color.web("#ffa726");
-        else                   barColor = Color.web("#ef5350");
+        if (ratio > 0.6){
+            barColor = Color.web("#66bb6a");
+        }      
+        else if (ratio > 0.3) {
+            barColor = Color.web("#ffa726");
+        }
+        else {
+            barColor = Color.web("#ef5350");
+        };
 
         gc.setFill(barColor);
         gc.fillRect(barX, barY, fill, 5);

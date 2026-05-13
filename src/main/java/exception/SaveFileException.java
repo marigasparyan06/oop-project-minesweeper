@@ -1,4 +1,4 @@
-package com.wildhabitat.exception;
+package exception;
 
 import java.io.IOException;
 

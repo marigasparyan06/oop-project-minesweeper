@@ -19,12 +19,12 @@ public class GameState {
 
     public List<Creature> creatures = new ArrayList<>();
 
-    public int score  = 0;
-    public int turn   = 1;
-    public int wave   = 1;
+    public int score = 0;
+    public int turn = 1;
+    public int wave = 1;
     public int energy = 100;
 
-    public TimeOfDay timeOfDay    = TimeOfDay.DAY;
+    public TimeOfDay timeOfDay = TimeOfDay.DAY;
     public int       dayCycleTick = 0;
 
     public static final int PHASE_DURATION = 3;

@@ -255,7 +255,7 @@ public class GameUIController {
 
     private VBox buildBottomLog() {
         logItems = FXCollections.observableArrayList();
-        logView  = new ListView<>(logItems);
+        logView = new ListView<>(logItems);
         logView.setPrefHeight(68);
         logView.setStyle("-fx-background-color: #0d0d1a; -fx-control-inner-background: #0d0d1a;");
 
@@ -290,7 +290,7 @@ public class GameUIController {
 
     /** Called after the Stage is shown. Loads terrain, tries to load a save, then draws. */
     public void initGame() {
-        state  = new GameState();
+        state = new GameState();
         engine = new GameEngine(state);
 
         try {

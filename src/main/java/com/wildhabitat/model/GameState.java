@@ -25,7 +25,7 @@ public class GameState {
     public int energy = 100;
 
     public TimeOfDay timeOfDay = TimeOfDay.DAY;
-    public int       dayCycleTick = 0;
+    public int dayCycleTick = 0;
 
     public static final int PHASE_DURATION = 3;
 

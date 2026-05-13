@@ -20,11 +20,16 @@ public enum Terrain {
     /** Returns the hex color used by the UI renderer for this terrain. */
     public String colorHex() {
         switch (this) {
-            case GRASS:         return "#4a7c59";
-            case STONE:         return "#8a8a8a";
-            case SHALLOW_WATER: return "#7ec8e3";
-            case DEEP_WATER:    return "#1a6b9a";
-            default:            return "#333333";
+            case GRASS:         
+                return "#4a7c59";
+            case STONE:         
+                return "#8a8a8a";
+            case SHALLOW_WATER: 
+                return "#7ec8e3";
+            case DEEP_WATER:    
+                return "#1a6b9a";
+            default:            
+                return "#333333";
         }
     }
 

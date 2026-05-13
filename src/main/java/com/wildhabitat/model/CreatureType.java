@@ -39,16 +39,16 @@ public enum CreatureType {
     CreatureType(String displayName, String abbrev, String emoji, String colorHex,
                  CreatureRole role, int baseHealth, float baseMoveFraction,
                  int basePower, int attackRange, int energyCost, Terrain[] allowedTerrains) {
-        this.displayName     = displayName;
-        this.abbrev          = abbrev;
-        this.emoji           = emoji;
-        this.colorHex        = colorHex;
-        this.role            = role;
-        this.baseHealth      = baseHealth;
+        this.displayName = displayName;
+        this.abbrev = abbrev;
+        this.emoji = emoji;
+        this.colorHex = colorHex;
+        this.role = role;
+        this.baseHealth = baseHealth;
         this.baseMoveFraction = baseMoveFraction;
-        this.basePower       = basePower;
-        this.attackRange     = attackRange;
-        this.energyCost      = energyCost;
+        this.basePower = basePower;
+        this.attackRange = attackRange;
+        this.energyCost = energyCost;
         this.allowedTerrains = allowedTerrains;
     }
 

@@ -19,10 +19,10 @@ public abstract class Creature implements Combatant, Cloneable, Comparable<Creat
     private int slowTurns = 0;
 
     protected Creature(CreatureType type, int row, int col) {
-        this.type      = type;
-        this.row       = row;
-        this.col       = col;
-        this.health    = type.baseHealth;
+        this.type = type;
+        this.row = row;
+        this.col = col;
+        this.health = type.baseHealth;
         this.maxHealth = type.baseHealth;
     }
 

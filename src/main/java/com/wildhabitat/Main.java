@@ -7,6 +7,7 @@ public class Main {
     public static void main(String[] args) {
         String mode = (args.length > 0) ? args[0].toLowerCase() : "ui";
 
+
         switch (mode) {
             case "ui":
                 launchUI(args);

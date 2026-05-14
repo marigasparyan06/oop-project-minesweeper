@@ -1,12 +1,12 @@
 package com.wildhabitat.ui;
 
 import com.wildhabitat.engine.GameEngine;
+import com.wildhabitat.exception.InvalidPlacementException;
 import com.wildhabitat.io.GridLoader;
 import com.wildhabitat.io.SaveManager;
 import com.wildhabitat.model.*;
 import com.wildhabitat.renderer.CreatureRenderer;
 
-import exception.InvalidPlacementException;
 import javafx.animation.*;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;

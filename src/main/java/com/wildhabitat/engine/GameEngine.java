@@ -14,32 +14,44 @@ import java.util.List;
  */
 public class GameEngine {
 
-    public static final int ENERGY_PER_TURN   = 10;
-    public static final int SCORE_PER_KILL    = 10;
-    public static final int SCORE_WAVE_CLEAR  = 50;
+    public static final int ENERGY_PER_TURN = 10;
+    public static final int SCORE_PER_KILL = 10;
+    public static final int SCORE_WAVE_CLEAR = 50;
     public static final int ENERGY_WAVE_CLEAR = 20;
     public static final int NIGHT_ENERGY_DISC = 15;
-    public static final int MAX_WAVES         = 10;
+    public static final int MAX_WAVES = 10;
 
     private final GameState state;
 
     private final List<int[]> attackedCells = new ArrayList<>();
-    private final List<int[]> movedCells    = new ArrayList<>();
-    private boolean phaseChangedThisTurn    = false;
-    private boolean gameOver                = false;
-    private boolean playerWon              = false;
-    private int     waveCooldown           = 0;
+    private final List<int[]> movedCells = new ArrayList<>();
+    private boolean phaseChangedThisTurn = false;
+    private boolean gameOver = false;
+    private boolean playerWon = false;
+    private int waveCooldown = 0;
 
     public GameEngine(GameState state) {
         this.state = state;
     }
 
-    public GameState      getState()                  { return state; }
-    public boolean        isGameOver()                { return gameOver; }
-    public boolean        didPlayerWin()              { return playerWon; }
-    public List<int[]>    getLastAttackedCells()      { return attackedCells; }
-    public List<int[]>    getLastMovedCells()         { return movedCells; }
-    public boolean        wasPhaseChangedThisTurn()   { return phaseChangedThisTurn; }
+    public GameState getState() { 
+        return state; 
+    }
+    public boolean isGameOver() { 
+        return gameOver;
+    }
+    public boolean didPlayerWin() { 
+        return playerWon;
+    }
+    public List<int[]> getLastAttackedCells() { 
+        return attackedCells; 
+    }
+    public List<int[]> getLastMovedCells() { 
+        return movedCells; 
+    }
+    public boolean wasPhaseChangedThisTurn() { 
+        return phaseChangedThisTurn; 
+    }
 
     /** Advances the simulation by one turn and returns the messages generated. */
     public List<String> nextTurn() {
@@ -239,7 +251,7 @@ public class GameEngine {
         for (Creature c : state.creatures) {
             if (!c.isAlive()) {
                 if (c.isAttacker()) ++attackersKilled;
-                else                ++defendersFallen;
+                else ++defendersFallen;
             }
         }
         if (attackersKilled > 0) {

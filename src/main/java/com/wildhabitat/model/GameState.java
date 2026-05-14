@@ -20,7 +20,7 @@ public class GameState {
     public List<Creature> creatures = new ArrayList<>();
 
     public int score = 0;
-    public int turn = 1;
+    public int turn = 0;
     public int wave = 1;
     public int energy = 100;
 

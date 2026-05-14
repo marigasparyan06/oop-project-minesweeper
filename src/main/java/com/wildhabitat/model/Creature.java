@@ -18,7 +18,7 @@ public abstract class Creature implements Combatant, Cloneable, Comparable<Creat
 
     private int slowTurns = 0;
 
-    protected Creature(CreatureType type, int row, int col) {
+    public Creature(CreatureType type, int row, int col) {
         this.type = type;
         this.row = row;
         this.col = col;
@@ -51,7 +51,7 @@ public abstract class Creature implements Combatant, Cloneable, Comparable<Creat
 
     public abstract int computeMoveCells(TimeOfDay phase, Terrain terrain);
 
-    /** Orders by current health so Collections.min/max can find the weakest or strongest target. */
+    /** Orders by current health so Collections.mifin/max can find the weakest or strongest target. */
     @Override
     public int compareTo(Creature other) {
         return Integer.compare(this.health, other.health);

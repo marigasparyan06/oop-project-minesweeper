@@ -5,22 +5,25 @@ import com.wildhabitat.model.*;
 
 import java.io.*;
 
-/**
- * Reads and writes savegame.txt.
- * Throws SaveFileException (a checked custom exception) when a CREATURE entry is malformed.
- * Uses Creature.create() factory to reconstruct the correct concrete subtype.
- */
+/*Reads and writes savegame.txt.*Throws SaveFileException(a checked custom exception)when a CREATURE entry is malformed.*Uses Creature.create()factory to reconstruct the correct concrete subtype.*/
+
 public class SaveManager {
 
     public static void save(GameState state, String filePath) throws IOException {
         try (BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(
                 new FileOutputStream(filePath), java.nio.charset.StandardCharsets.UTF_8))) {
-            writer.write("SCORE," + state.score);          writer.newLine();
-            writer.write("TURN,"  + state.turn);           writer.newLine();
-            writer.write("WAVE,"  + state.wave);           writer.newLine();
-            writer.write("ENERGY," + state.energy);        writer.newLine();
-            writer.write("TIME_OF_DAY," + state.timeOfDay.name()); writer.newLine();
-            writer.write("DAY_CYCLE_TICK," + state.dayCycleTick);  writer.newLine();
+            writer.write("SCORE," + state.score);
+            writer.newLine();
+            writer.write("TURN," + state.turn);
+            writer.newLine();
+            writer.write("WAVE," + state.wave);
+            writer.newLine();
+            writer.write("ENERGY," + state.energy);
+            writer.newLine();
+            writer.write("TIME_OF_DAY," + state.timeOfDay.name());
+            writer.newLine();
+            writer.write("DAY_CYCLE_TICK," + state.dayCycleTick);
+            writer.newLine();
 
             for (Creature c : state.creatures) {
                 if (c.isAlive()) {
@@ -36,13 +39,20 @@ public class SaveManager {
         save(state, "savegame.txt");
     }
 
-    /**
-     * Loads a save file back into state.
-     * Terrain must already be loaded (call GridLoader first).
+    /*
+
+    Loads a
+    save file
+    back into state.*
+    Terrain must
+    already be
+
+    loaded (call GridLoader first).
      *
      * @throws SaveFileException if a CREATURE line is missing required fields
      * @throws IOException       on any other I/O error
      */
+
     public static void load(GameState state, String filePath) throws IOException {
         state.creatures.clear();
 
@@ -60,11 +70,11 @@ public class SaveManager {
                 String[] parts = line.split(",");
 
                 switch (parts[0].toUpperCase()) {
-                    case "SCORE":          state.score      = Integer.parseInt(parts[1]); break;
-                    case "TURN":           state.turn       = Integer.parseInt(parts[1]); break;
-                    case "WAVE":           state.wave       = Integer.parseInt(parts[1]); break;
-                    case "ENERGY":         state.energy     = Integer.parseInt(parts[1]); break;
-                    case "TIME_OF_DAY":    state.timeOfDay  = TimeOfDay.fromString(parts[1]); break;
+                    case "SCORE": state.score = Integer.parseInt(parts[1]); break;
+                    case "TURN": state.turn = Integer.parseInt(parts[1]); break;
+                    case "WAVE": state.wave = Integer.parseInt(parts[1]); break;
+                    case "ENERGY": state.energy = Integer.parseInt(parts[1]); break;
+                    case "TIME_OF_DAY": state.timeOfDay = TimeOfDay.fromString(parts[1]); break;
                     case "DAY_CYCLE_TICK": state.dayCycleTick = Integer.parseInt(parts[1]); break;
 
                     case "CREATURE": {
@@ -81,15 +91,8 @@ public class SaveManager {
                         state.creatures.add(Creature.create(type, row, col, health));
                         break;
                     }
-
-                    default:
-                        System.out.println("[SaveManager] Unknown key ignored: " + parts[0]);
                 }
             }
         }
-    }
-
-    public static void loadDefault(GameState state) throws IOException {
-        load(state, "savegame.txt");
     }
 }

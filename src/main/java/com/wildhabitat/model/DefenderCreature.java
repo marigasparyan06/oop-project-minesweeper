@@ -6,7 +6,7 @@ package com.wildhabitat.model;
  */
 public class DefenderCreature extends Creature {
 
-    DefenderCreature(CreatureType type, int row, int col) {
+    public DefenderCreature(CreatureType type, int row, int col) {
         super(type, row, col);
     }
 

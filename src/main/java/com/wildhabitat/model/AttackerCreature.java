@@ -8,7 +8,7 @@ public class AttackerCreature extends Creature {
 
     private float moveBudget = 0f;
 
-    AttackerCreature(CreatureType type, int row, int col) {
+    public AttackerCreature(CreatureType type, int row, int col) {
         super(type, row, col);
     }
 
